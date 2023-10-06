@@ -24,6 +24,13 @@ app.get("/", (req, res) => {
   res.send("Hello World");
 });
 
+app.get("/user", (req, res) => {
+  const payload = jwt.verify(req.cookies.token, secret);
+  User.findById(payload.id).then((userInfo) => {
+    res.json({ id: userInfo._id, email: userInfo.email });
+  });
+});
+
 app.post("/register", (req, res) => {
   const { email, password } = req.body;
   const hashedPassword = bcrypt.hashSync(password, 10);
@@ -44,6 +51,33 @@ app.post("/register", (req, res) => {
       }
     );
   });
+});
+
+app.post("/login", (req, res) => {
+  const { email, password } = req.body;
+  User.find({ email }).then((userInfo) => {
+    const passwordMatch = bcrypt.compareSync(password, userInfo[0].password);
+    if (passwordMatch) {
+      jwt.sign(
+        { id: userInfo._id, email: userInfo.email },
+        secret,
+        (err, token) => {
+          if (err) {
+            console.error(err);
+            res.sendStatus(500);
+          } else {
+            res
+              .cookie("token", token)
+              .json({ id: userInfo._id, email: userInfo.email });
+          }
+        }
+      );
+    }
+  });
+});
+
+app.post("/logout", (req, res) => {
+  res.clearCookie("token").sendStatus(200);
 });
 
 app.listen(3500, () => {});

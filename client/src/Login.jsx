@@ -2,7 +2,7 @@ import { useState, useContext } from "react";
 import axios from "axios";
 import UserContext from "./UserContext";
 
-export default function Register() {
+export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -21,7 +21,7 @@ export default function Register() {
 
     const data = { email, password };
     axios
-      .post("http://localhost:3500/register", data, {
+      .post("http://localhost:3500/login", data, {
         withCredentials: true,
       })
       .then((res) => {
@@ -46,7 +46,7 @@ export default function Register() {
         value={password}
         onChange={handlePasswordChange}
       />
-      <button type="submit">Register</button>
+      <button type="submit">Login</button>
     </form>
   );
 }
